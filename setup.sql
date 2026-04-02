@@ -79,24 +79,28 @@ CREATE OR REPLACE TABLE ANALYTICS.SALES.PURCHASE_SUMMARY (
     TOTAL_RETURNS           INTEGER       NOT NULL
 );
 
+/*
+  Feature distributions have heavy overlap between churned / active so
+  no single feature is perfectly predictive.  Target model accuracy: 75-85%.
+*/
 INSERT INTO ANALYTICS.SALES.PURCHASE_SUMMARY
 SELECT
     c.CUSTOMER_ID,
     CASE
-        WHEN c.IS_CHURNED = 1 THEN GREATEST(UNIFORM(1, 20, RANDOM()), 1)
-        ELSE GREATEST(UNIFORM(5, 80, RANDOM()), 1)
+        WHEN c.IS_CHURNED = 1 THEN GREATEST(UNIFORM(1, 50, RANDOM()), 1)
+        ELSE GREATEST(UNIFORM(3, 80, RANDOM()), 1)
     END                                                           AS TOTAL_PURCHASES,
     CASE
-        WHEN c.IS_CHURNED = 1 THEN ROUND(UNIFORM(15, 120, RANDOM()) + UNIFORM(0, 100, RANDOM()) / 100.0, 2)
-        ELSE ROUND(UNIFORM(30, 250, RANDOM()) + UNIFORM(0, 100, RANDOM()) / 100.0, 2)
+        WHEN c.IS_CHURNED = 1 THEN ROUND(UNIFORM(20, 200, RANDOM()) + UNIFORM(0, 100, RANDOM()) / 100.0, 2)
+        ELSE ROUND(UNIFORM(40, 250, RANDOM()) + UNIFORM(0, 100, RANDOM()) / 100.0, 2)
     END                                                           AS AVG_ORDER_VALUE,
     CASE
-        WHEN c.IS_CHURNED = 1 THEN UNIFORM(60, 365, RANDOM())
-        ELSE UNIFORM(1, 45, RANDOM())
+        WHEN c.IS_CHURNED = 1 THEN UNIFORM(5, 300, RANDOM())
+        ELSE UNIFORM(1, 180, RANDOM())
     END                                                           AS DAYS_SINCE_LAST_PURCHASE,
     CASE
-        WHEN c.IS_CHURNED = 1 THEN UNIFORM(0, 8, RANDOM())
-        ELSE UNIFORM(0, 3, RANDOM())
+        WHEN c.IS_CHURNED = 1 THEN UNIFORM(0, 10, RANDOM())
+        ELSE UNIFORM(0, 6, RANDOM())
     END                                                           AS TOTAL_RETURNS
 FROM ANALYTICS.SALES.CUSTOMERS c;
 
@@ -114,16 +118,16 @@ INSERT INTO ANALYTICS.SALES.ENGAGEMENT
 SELECT
     c.CUSTOMER_ID,
     CASE
-        WHEN c.IS_CHURNED = 1 THEN UNIFORM(2, 15, RANDOM())
-        ELSE UNIFORM(0, 5, RANDOM())
+        WHEN c.IS_CHURNED = 1 THEN UNIFORM(0, 12, RANDOM())
+        ELSE UNIFORM(0, 8, RANDOM())
     END                                                           AS SUPPORT_TICKETS,
     CASE
-        WHEN c.IS_CHURNED = 1 THEN ROUND(UNIFORM(10, 60, RANDOM()) / 10.0, 1)
-        ELSE ROUND(UNIFORM(50, 100, RANDOM()) / 10.0, 1)
+        WHEN c.IS_CHURNED = 1 THEN ROUND(UNIFORM(15, 85, RANDOM()) / 10.0, 1)
+        ELSE ROUND(UNIFORM(35, 100, RANDOM()) / 10.0, 1)
     END                                                           AS AVG_RESPONSE_SCORE,
     CASE
-        WHEN c.IS_CHURNED = 1 THEN UNIFORM(0, 8, RANDOM())
-        ELSE UNIFORM(5, 30, RANDOM())
+        WHEN c.IS_CHURNED = 1 THEN UNIFORM(0, 20, RANDOM())
+        ELSE UNIFORM(2, 30, RANDOM())
     END                                                           AS MONTHLY_LOGINS
 FROM ANALYTICS.SALES.CUSTOMERS c;
 
