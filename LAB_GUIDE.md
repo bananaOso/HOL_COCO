@@ -54,6 +54,7 @@ With the bugs fixed, extend the notebook using Cortex Code:
 
 1. **Add a feature importance visualization** - Ask Cortex Code to add a cell that plots the top 10 most important features using a horizontal bar chart
 2. **Add cross-validation** - Ask Cortex Code to replace the single train/test split with 5-fold cross-validation and print the mean and standard deviation of accuracy scores
+3. **Add Experiments** - Ask it to add experiments for the built model.
 
 > **Tip:** Try asking: *"Add a cell after cell 7 that shows feature importance as a horizontal bar chart"*
 
@@ -88,6 +89,11 @@ Now you'll switch to the terminal and use Cortex Code CLI to build extensibility
 4. Verify your connection:
    ```
    /status
+   ```
+
+5. Show Available Commands:
+   ```
+   /help
    ```
 
 ### Exercise 4: Build a Custom Skill - Model Reviewer (20 min)
@@ -152,19 +158,24 @@ Hooks add deterministic guardrails to Cortex Code. You'll create a `PreToolUse` 
 #### Step 1: Create the hook script
 
 ```bash
-mkdir -p .cortex/hooks
+mkdir -p cortex/hooks
 ```
 
 Copy the provided hook script:
 ```bash
-cp ~/cortex-code-lab/hook/validate-sql.sh .cortex/hooks/validate-sql.sh
-chmod +x .cortex/hooks/validate-sql.sh
+cp ~/cortex-code-lab/hook/validate-sql.sh cortex/hooks/validate-sql.sh
+chmod +x cortex/hooks/validate-sql.sh
+```
+Example in my environment:
+```bash
+cp ~/Desktop/Agent_projects/COCO_HOL/lab/part2_cli/hook/validate-sql.sh ~/.snowflake/cortex/hooks/validate-sql.sh
+
 ```
 
 #### Step 2: Review the hook script
 
 ```bash
-cat .cortex/hooks/validate-sql.sh
+cat .snowflake/cortex/hooks/validate-sql.sh
 ```
 
 This hook intercepts `snowflake_sql_execute` calls and blocks any SQL that contains `DROP`, `DELETE`, or `TRUNCATE` without a `WHERE` clause.
@@ -174,8 +185,10 @@ This hook intercepts `snowflake_sql_execute` calls and blocks any SQL that conta
 Create the project-level settings file:
 
 ```bash
-cat > .cortex/settings.json << 'EOF'
+cat > .snowflake/cortex/settings.json << 'EOF'
 {
+  "cortexAgentConnectionName": "SnowHouse",
+  "theme": "dark",
   "hooks": {
     "PreToolUse": [
       {
@@ -183,7 +196,7 @@ cat > .cortex/settings.json << 'EOF'
         "hooks": [
           {
             "type": "command",
-            "command": "bash .cortex/hooks/validate-sql.sh",
+            "command": "/Users/cescobarrood/.snowflake/cortex/hooks/validate-sql.sh",
             "timeout": 5
           }
         ]
@@ -196,10 +209,15 @@ EOF
 
 #### Step 4: Test the hook
 
+Create a table to be tested:
+```
+/sql create table drop_me as select * from analytics.sales.drop_me
+```
+
 Start a new Cortex Code session and try running dangerous SQL:
 
 ```
-/sql DROP TABLE my_table
+Can you drop the table analytics.sales.drop_me
 ```
 
 The hook should block the operation and explain why.
