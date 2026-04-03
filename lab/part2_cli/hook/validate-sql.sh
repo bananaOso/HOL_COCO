@@ -20,17 +20,17 @@ print(sql.upper())
 " 2>/dev/null)
 
 if echo "$SQL" | grep -qE '^\s*(DROP\s+TABLE|DROP\s+DATABASE|DROP\s+SCHEMA)' ; then
-    echo '{"decision": "block", "reason": "BLOCKED: DROP statements are not allowed. Please confirm with your team lead before dropping objects."}' >&2
+    echo '{"decision": "block", "reason": "BLOCKED: DROP statements are not allowed. Please confirm with your team lead before dropping objects."}'
     exit 2
 fi
 
 if echo "$SQL" | grep -qE '^\s*TRUNCATE\s+' ; then
-    echo '{"decision": "block", "reason": "BLOCKED: TRUNCATE is not allowed via Cortex Code. Use the Snowsight UI for destructive operations."}' >&2
+    echo '{"decision": "block", "reason": "BLOCKED: TRUNCATE is not allowed via Cortex Code. Use the Snowsight UI for destructive operations."}'
     exit 2
 fi
 
 if echo "$SQL" | grep -qE '^\s*DELETE\s+' && ! echo "$SQL" | grep -qE 'WHERE' ; then
-    echo '{"decision": "block", "reason": "BLOCKED: DELETE without a WHERE clause would remove all rows. Add a WHERE clause to proceed."}' >&2
+    echo '{"decision": "block", "reason": "BLOCKED: DELETE without a WHERE clause would remove all rows. Add a WHERE clause to proceed."}'
     exit 2
 fi
 
